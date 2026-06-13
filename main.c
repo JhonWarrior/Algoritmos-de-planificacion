@@ -13,6 +13,7 @@ void CM(); //Jhon
 int getData(int,int);
 int menu();
 void init(int*,int);
+void printTabla(int*,int);
 
 int main(){
 	int numProc;
@@ -46,17 +47,8 @@ int main(){
 			data = NULL;
 			return 0;
 		}
-		printf("\n%-3s %-10s %-10s %-10s %-10s %-10s %-10s\n","ID","Prioridad","Uso CPU","T. Llegada","T. Finalizacion","T. Retorno","T. Espera");//Imprimir este al final
-		for(int i = 0;i < numProc;i++){
-			printf("%-8c",65+i);
-			for(int j = 0;j < COL;j++){
-				printf("%-12d",data[COL*i+j]);
-			}
-			printf("\n");
-		}
-		printf("\n");
+		printTabla(data,numProc);
 	}
-
 }
 
 
@@ -73,13 +65,26 @@ void init(int* data, int n){
 	for(int i=0;i<n;i++){
 		printf("\nProceso %c:\n",65+i);
 		printf("Prioridad (1 a 3): ");
-		data[i*3] = getData(1,3); //Col 0
+		data[i*COL] = getData(1,3); //Col 0
 		printf("Uso CPU (1 a 10): ");
-		data[i*3+1] = getData(1,10); //Col 1
+		data[i*COL+1] = getData(1,10); //Col 1
 		printf("Llegada (0 a 10): ");
-		data[i*3+2] = getData(0,10); //Col 2
+		data[i*COL+2] = getData(0,10); //Col 2
 	}
 }
+
+void printTabla(int* data, int n){
+	printf("\n%s%12s%12s%12s%12s%12s%12s\n","ID","Prioridad","Uso CPU","T. Llegada","T. Final","T. Retorno","T. Espera");
+	for(int i = 0;i < n;i++){
+		printf("%2c",65+i);
+		for(int j = 0;j < COL;j++){
+			printf("%12d",data[COL*i+j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
 
 int menu(){
 	int opcion;
@@ -96,7 +101,7 @@ int menu(){
 	return opcion;
 }
 
-void FCFS(){}
-void SJF(){}
-void RR(){}
-void CM(){}
+void FCFS(){//TODO}
+void SJF(){//TODO}
+void RR(){//TODO}
+void CM(){//TODO}
