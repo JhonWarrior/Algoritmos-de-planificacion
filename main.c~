@@ -5,8 +5,19 @@
 #define COL 6 
 
 //65 - A
+//
+//struct Proceso
+//{
+//	char name;
+//	int t_llegada;
+//	int cpu;
+//	int prioridad;
+//	int t_retorno;
+//	int t_espera;
+//	Proceso *next;
+//};
 
-void FCFS(); //Chale
+void FCFS(int*,int); //Chale
 void SJF(); //Jhon
 void RR(); //Chale
 void CM(); //Jhon
@@ -31,7 +42,7 @@ int main(){
 
 		switch (opcion){
 		case 1:
-			FCFS();
+			FCFS(data,numProc);
 			break;
 		case 2:
 			SJF();
@@ -101,7 +112,55 @@ int menu(){
 	return opcion;
 }
 
-void FCFS(){}
+void FCFS(int* data,int n){
+	int aux[n*COL];
+	int indices[n];
+	int sumT = 0;
+
+	for(int i = 0; i < n; i++){
+		indices[i] = i;
+		for(int j = 0; j < COL; j++)
+		       aux[i*COL + j] = data[i*COL + j];	
+	}
+
+
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = i+1; j < n; j++)
+		{
+			int aux1 = 0, aux2 = 0;
+			if(aux[i*COL + 2] > aux[j*COL + 2])
+			{
+				aux1 = aux[i*COL + 2];
+				aux[i*COL + 2] = aux[j*COL + 2];
+				aux[j*COL + 2] = aux1;
+
+				aux2 = indices[i];
+				indices[i] = indices[j];
+				indices[j] = aux2;
+			}
+		}
+	}
+
+	for(int i = 0; i < n; i++)
+	{
+		sumT += data[indices[i]*COL+1];
+		if(sumT > data[indices[i]*COL + 2])
+			sumT = data[indices[i]*COL+2];
+
+		data[indices[i]*COL + 3] = sumT;	
+	}
+
+	printf("\nIndices ordenados\n");
+
+	for(int i = 0; i < n; i++)
+	{
+		printf("%d ", indices[i]);
+	}
+
+	printf("\n");
+
+}
 void SJF(){}
 void RR(){}
 void CM(){}
