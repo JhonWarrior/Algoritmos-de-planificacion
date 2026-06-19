@@ -19,7 +19,7 @@
 
 void FCFS(int*,int); //Chale
 void SJF(); //Jhon
-void RR(); //Chale
+void RR(int*, int, int); //Chale
 void CM(); //Jhon
 int getData(int,int);
 int menu();
@@ -48,7 +48,7 @@ int main(){
 			SJF();
 			break;
 		case 3:
-			RR();
+			RR(data, numProc, 4);
 			break;
 		case 4:
 			CM();
@@ -95,7 +95,6 @@ void printTabla(int* data, int n){
 	}
 	printf("\n");
 }
-
 
 int menu(){
 	int opcion;
@@ -145,12 +144,15 @@ void FCFS(int* data,int n){
 	for(int i = 0; i < n; i++)
 	{
 		sumT += data[indices[i]*COL+1];
-		if(sumT > data[indices[i]*COL + 2])
+		if(sumT < data[indices[i]*COL + 2])
 			sumT = data[indices[i]*COL+2];
 
-		data[indices[i]*COL + 3] = sumT;	
+		data[indices[i]*COL + 3] = sumT;
+		
+		data[indices[i]*COL + 4] = data[indices[i]*COL+3] - data[indices[i]*COL+2];
+		data[indices[i]*COL + 5] = data[indices[i]*COL+4] - data[indices[i]*COL+1];	
 	}
-
+	/*
 	printf("\nIndices ordenados\n");
 
 	for(int i = 0; i < n; i++)
@@ -158,9 +160,90 @@ void FCFS(int* data,int n){
 		printf("%d ", indices[i]);
 	}
 
-	printf("\n");
+	printf("\n");*/
 
 }
 void SJF(){}
-void RR(){}
+
+void RR(int *data, int n, int quantum){
+	//Algoritmo de Round Robin
+
+	int aux[n * COL];
+	int cpu[n];
+	int indices[n];
+	int sumtot;
+	int sumT = 0, orden;
+	
+	for (int i = 0; i < n; i++) {
+		indices[i] = i;
+		cpu[i] = data[i*COL + 1];
+		sumtot += data[i * COL + 1];
+		for (int j = 0; j < COL; j++)
+			aux[i * COL + j] = data[i * COL + j];
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		int aux1, aux2;
+		for (int j = i + 1; j < n; j++)
+		{
+			int aux1 = 0, aux2 = 0;
+			if (aux[i * COL + 2] > aux[j * COL + 2])
+			{
+				aux1 = aux[i * COL + 2];
+				aux[i * COL + 2] = aux[j * COL + 2];
+				aux[j * COL + 2] = aux1;
+
+				aux2 = indices[i];
+				indices[i] = indices[j];
+				indices[j] = aux2;
+			}
+		}
+	}
+
+	while (sumT < sumtot)
+	{
+		if (cpu[indices[0]] > quantum)
+		{
+			orden = indices[0];
+			cpu[indices[0]] -= quantum;
+			sumT += quantum;
+			for (int j = 0; j < n - 2; j++)
+				indices[j] = indices[j + 1];
+			indices[n - 1] = orden;
+		}
+		else
+		{
+			sumT += cpu[indices[0]];
+			data[indices[0] * COL + 3] = sumT;
+			data[indices[0] * COL + 4] = data[indices[0] * COL + 3] - data[indices[0] * COL + 2];
+			data[indices[0] * COL + 5] = data[indices[0] * COL + 4] - data[indices[0] * COL + 1];
+		}
+	}
+
+	/*for (int i = 0; i < n; i++)
+	{
+		if (cpu[indices[i]] > quantum)
+		{
+			orden = indices[0];
+
+			
+			cpu[indices[i]] -= quantum;
+			sumT += quantum;
+
+			for(int j = 0; j < n-2; j++)
+				indices[j] = indices[j+1];
+
+			indices[n-1] = orden;
+		}
+		else
+		{
+			sumT += cpu[indices[i]];
+			data[indices[i]*COL + 3] = sumT;
+
+			data[indices[i]*COL + 4] = data[indices[i]*COL+3] - data[indices[i]*COL+2];
+			data[indices[i]*COL + 5] = data[indices[i]*COL+4] - data[indices[i]*COL+1];	
+		}
+	}*/
+}
 void CM(){}
