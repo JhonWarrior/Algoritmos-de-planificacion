@@ -18,9 +18,9 @@
 //};
 
 void FCFS(int*,int); //Chale
-void SJF(); //Jhon
+void SJF(int*,int); //Jhon
 void RR(); //Chale
-void CM(); //Jhon
+void CM(int*,int); //Jhon
 int getData(int,int);
 int menu();
 void init(int*,int);
@@ -45,13 +45,13 @@ int main(){
 			FCFS(data,numProc);
 			break;
 		case 2:
-			SJF();
+			SJF(data,numProc);
 			break;
 		case 3:
 			RR();
 			break;
 		case 4:
-			CM();
+			CM(data,numProc);
 			break;
 		case 5:
 			free(data);
@@ -76,11 +76,11 @@ void init(int* data, int n){
 	for(int i=0;i<n;i++){
 		printf("\nProceso %c:\n",65+i);
 		printf("Prioridad (1 a 3): ");
-		data[i*COL] = getData(1,3); //Col 0
+		data[i*COL] = getData(1,3); //Col 0 - Prioridad
 		printf("Uso CPU (1 a 10): ");
-		data[i*COL+1] = getData(1,10); //Col 1
+		data[i*COL+1] = getData(1,10); //Col 1 - CPU
 		printf("Llegada (0 a 10): ");
-		data[i*COL+2] = getData(0,10); //Col 2
+		data[i*COL+2] = getData(0,10); //Col 2 - Llegada
 	}
 }
 
@@ -161,6 +161,65 @@ void FCFS(int* data,int n){
 	printf("\n");
 
 }
-void SJF(){}
+void SJF(int* data,int n){
+	int completado[n];
+	int terminados = 0, tiempo = 0;
+
+	for(int i=0;i<n;i++) completado[i]=0;
+
+	while(terminados < n){
+		int min = -1;
+		for(int i = 0;i<n;i++){
+			if(!completado[i]&&(data[i*COL+2]<=tiempo)){//Si no ha terminado y el tiempo de llegada es menor o igual al tiempo del proceso
+				if(min==-1||(data[i*COL+1]<data[min*COL+1])) min = i;//Si hay un CPU mas bajo actualizar, o si no hay ninguno asignar ese como el mas bajo
+			}
+		}
+		if(min==-1){
+			tiempo++;//Tiempo ++ si la llegada es mayor al tiempo contado
+		}
+		else{
+			tiempo += data[min*COL+1];
+			data[min*COL+3] = tiempo; //Finalizacion
+			data[min*COL+4] = tiempo - data[min*COL+2]; //Retorno
+			data[min*COL+5] = data[min*COL+4] - data[min*COL+1]; //Espera
+			completado[min] = 1;
+			terminados++;
+		}
+	}
+}
 void RR(){}
-void CM(){}
+void CM(int* data, int n){
+	int completado[n],restante[n];
+	int terminados = 0, tiempo = 0;
+	
+	printf("Ingresa el valor del quantum (2 a 5): ");
+	int quantum = getData(2,5);
+
+	for(int i = 0;i<n;i++){ 
+		completado[i]=0;
+		restante[i]=data[i*COL+1];
+	}
+
+	while(terminados < n){
+		for(int prior = 3;prior>0;prior--){//Recorre prioridad
+			for(int i = 0;i<n;i++){
+				if(!completado[i]&&(data[i*COL+2]<=tiempo)&&(data[i*COL]==prior)){
+					if(restante[i]>quantum){
+						restante[i] -= quantum;
+						tiempo += quantum;
+					}
+					else{
+						tiempo += restante[i];
+						restante[i] = 0;
+
+						data[i*COL+3] = tiempo; //Finalizacion
+						data[i*COL+4] = tiempo - data[i*COL+2]; //Retorno
+						data[i*COL+5] = data[i*COL+4] - data[i*COL+1]; //Espera
+						completado[i] = 1;
+						terminados++;
+					}
+				}
+			}
+		}
+	}
+}
