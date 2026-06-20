@@ -5,22 +5,14 @@
 #define COL 6 
 
 //65 - A
-//
-//struct Proceso
-//{
-//	char name;
-//	int t_llegada;
-//	int cpu;
-//	int prioridad;
-//	int t_retorno;
-//	int t_espera;
-//	Proceso *next;
-//};
+//Jhonathan Lorenzo Rivas Guerrero - 11499
+//Yael Jimena Chale Pech - 11245
+
 
 void FCFS(int*,int); //Chale
 void SJF(int*,int); //Jhon
-void RR(); //Chale
 void CM(int*,int); //Jhon
+void RR(int*, int); //Chale
 int getData(int,int);
 int menu();
 void init(int*,int);
@@ -48,7 +40,7 @@ int main(){
 			SJF(data,numProc);
 			break;
 		case 3:
-			RR();
+			RR(data, numProc);
 			break;
 		case 4:
 			CM(data,numProc);
@@ -95,7 +87,6 @@ void printTabla(int* data, int n){
 	}
 	printf("\n");
 }
-
 
 int menu(){
 	int opcion;
@@ -145,20 +136,14 @@ void FCFS(int* data,int n){
 	for(int i = 0; i < n; i++)
 	{
 		sumT += data[indices[i]*COL+1];
-		if(sumT > data[indices[i]*COL + 2])
+		if(sumT < data[indices[i]*COL + 2])
 			sumT = data[indices[i]*COL+2];
 
-		data[indices[i]*COL + 3] = sumT;	
+		data[indices[i]*COL + 3] = sumT;
+		
+		data[indices[i]*COL + 4] = data[indices[i]*COL+3] - data[indices[i]*COL+2];
+		data[indices[i]*COL + 5] = data[indices[i]*COL+4] - data[indices[i]*COL+1];	
 	}
-
-	printf("\nIndices ordenados\n");
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("%d ", indices[i]);
-	}
-
-	printf("\n");
 
 }
 void SJF(int* data,int n){
@@ -187,7 +172,6 @@ void SJF(int* data,int n){
 		}
 	}
 }
-void RR(){}
 void CM(int* data, int n){
 	int completado[n],restante[n];
 	int terminados = 0, tiempo = 0;
@@ -221,5 +205,91 @@ void CM(int* data, int n){
 				}
 			}
 		}
+	}
+}
+
+
+void RR(int *data, int n){
+	//Algoritmo de Round Robin
+
+	int aux[n * COL];
+	int cpu[n];
+	int cont = 0;
+	int indices[n];
+	int sumtot = 0;
+	int sumT = 0, orden;
+	printf("Ingresa el valor del quantum (2 a 5): ");
+	int quantum = getData(2,5);
+	
+	for (int i = 0; i < n; i++) {
+		indices[i] = i;
+		cpu[i] = data[i*COL + 1];
+		sumtot += data[i * COL + 1];
+		for (int j = 0; j < COL; j++)
+			aux[i * COL + j] = data[i * COL + j];
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		int aux1, aux2;
+		for (int j = i + 1; j < n; j++)
+		{
+			if (aux[i * COL + 2] > aux[j * COL + 2])
+			{
+				aux1 = aux[i * COL + 2];
+				aux[i * COL + 2] = aux[j * COL + 2];
+				aux[j * COL + 2] = aux1;
+
+				aux2 = indices[i];
+				indices[i] = indices[j];
+				indices[j] = aux2;
+			}
+		}
+	}
+
+	while (sumT < sumtot)
+	{
+		orden = indices[0];
+		if (cpu[indices[0]] > quantum)
+		{
+			cpu[indices[0]] -= quantum;
+			sumT += quantum;
+		}
+		else if (cpu[indices[0]] > 0)
+		{
+			sumT += cpu[indices[0]];
+			cpu[indices[0]] = 0;
+			data[indices[0] * COL + 3] = sumT;
+			data[indices[0] * COL + 4] = data[indices[0] * COL + 3] - data[indices[0] * COL + 2];
+			data[indices[0] * COL + 5] = data[indices[0] * COL + 4] - data[indices[0] * COL + 1];
+		}
+
+		for (int j = 0; j < n - 1; j++)
+			indices[j] = indices[j + 1];
+		indices[n - 1] = orden;
+
+		for (int i = 0; i < n; i++)
+		{
+			int aux3 = 0;
+			if (data[indices[i]*COL + 2] > quantum)
+			{
+				int p = indices[n-1];
+				for (int j = cont; j < n; j++)
+				{
+					if (data[indices[j] * COL + 2] <= sumT)
+					{
+						aux3 = indices[j];
+						for (int k = j; k > cont; k--)
+							indices[k] = indices[k - 1];
+						indices[cont] = aux3;
+						cont++;
+					}
+				}
+
+				break;
+			}
+			cont++;
+		}
+
 	}
 }
