@@ -135,9 +135,10 @@ void FCFS(int* data,int n){
 
 	for(int i = 0; i < n; i++)
 	{
-		sumT += data[indices[i]*COL+1];
 		if(sumT < data[indices[i]*COL + 2])
 			sumT = data[indices[i]*COL+2];
+
+		sumT += data[indices[i]*COL+1];
 
 		data[indices[i]*COL + 3] = sumT;
 		
@@ -208,22 +209,21 @@ void CM(int* data, int n){
 	}
 }
 
-
-void RR(int *data, int n){
+void RR(int* data, int n) {
 	//Algoritmo de Round Robin
 
 	int aux[n * COL];
 	int cpu[n];
-	int cont = 0;
 	int indices[n];
 	int sumtot = 0;
 	int sumT = 0, orden;
+
 	printf("Ingresa el valor del quantum (2 a 5): ");
-	int quantum = getData(2,5);
-	
+	int quantum = getData(2, 5);
+
 	for (int i = 0; i < n; i++) {
 		indices[i] = i;
-		cpu[i] = data[i*COL + 1];
+		cpu[i] = data[i * COL + 1];
 		sumtot += data[i * COL + 1];
 		for (int j = 0; j < COL; j++)
 			aux[i * COL + j] = data[i * COL + j];
@@ -268,28 +268,18 @@ void RR(int *data, int n){
 			indices[j] = indices[j + 1];
 		indices[n - 1] = orden;
 
-		for (int i = 0; i < n; i++)
-		{
-			int aux3 = 0;
-			if (data[indices[i]*COL + 2] > quantum)
-			{
-				int p = indices[n-1];
-				for (int j = cont; j < n; j++)
-				{
-					if (data[indices[j] * COL + 2] <= sumT)
-					{
-						aux3 = indices[j];
-						for (int k = j; k > cont; k--)
-							indices[k] = indices[k - 1];
-						indices[cont] = aux3;
-						cont++;
-					}
-				}
+		int p = indices[n - 1];
 
+		for (int j = 0; j < n; j++)
+		{
+			if (data[indices[j] * COL + 2] > sumT)
+			{
+				for (int k = n - 1; k > j; k--)
+					indices[k] = indices[k - 1];
+
+				indices[j] = p;
 				break;
 			}
-			cont++;
 		}
-
 	}
 }

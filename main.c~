@@ -5,17 +5,9 @@
 #define COL 6 
 
 //65 - A
-//
-//struct Proceso
-//{
-//	char name;
-//	int t_llegada;
-//	int cpu;
-//	int prioridad;
-//	int t_retorno;
-//	int t_espera;
-//	Proceso *next;
-//};
+//Jhonathan Lorenzo Rivas Guerrero - 11499
+//Yael Jimena Chale Pech - 11245
+
 
 void FCFS(int*,int); //Chale
 void SJF(int*,int); //Jhon
@@ -152,15 +144,6 @@ void FCFS(int* data,int n){
 		data[indices[i]*COL + 4] = data[indices[i]*COL+3] - data[indices[i]*COL+2];
 		data[indices[i]*COL + 5] = data[indices[i]*COL+4] - data[indices[i]*COL+1];	
 	}
-	/*
-	printf("\nIndices ordenados\n");
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("%d ", indices[i]);
-	}
-
-	printf("\n");*/
 
 }
 void SJF(int* data,int n){
