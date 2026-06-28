@@ -20,7 +20,7 @@
 void FCFS(int*,int); //Chale
 void SJF(int*,int); //Jhon
 void CM(int*,int); //Jhon
-void RR(int*, int, int); //Chale
+void RR(int*, int); //Chale
 int getData(int,int);
 int menu();
 void init(int*,int);
@@ -48,7 +48,7 @@ int main(){
 			SJF(data,numProc);
 			break;
 		case 3:
-			RR(data, numProc, 4);
+			RR(data, numProc);
 			break;
 		case 4:
 			CM(data,numProc);
@@ -152,15 +152,6 @@ void FCFS(int* data,int n){
 		data[indices[i]*COL + 4] = data[indices[i]*COL+3] - data[indices[i]*COL+2];
 		data[indices[i]*COL + 5] = data[indices[i]*COL+4] - data[indices[i]*COL+1];	
 	}
-	/*
-	printf("\nIndices ordenados\n");
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("%d ", indices[i]);
-	}
-
-	printf("\n");*/
 
 }
 void SJF(int* data,int n){
@@ -189,42 +180,135 @@ void SJF(int* data,int n){
 		}
 	}
 }
-void CM(int* data, int n){
-	int completado[n],restante[n];
-	int terminados = 0, tiempo = 0;
-	
-	printf("Ingresa el valor del quantum (2 a 5): ");
-	int quantum = getData(2,5);
 
-	for(int i = 0;i<n;i++){ 
-		completado[i]=0;
-		restante[i]=data[i*COL+1];
+void CM(int *data, int n){
+    	int restante[n], agregado[n];
+
+    	int cola3[n*10], cola2[n*10], cola1[n*10];
+    	int f3=0,r3=0;
+    	int f2=0,r2=0;
+	int f1=0,r1=0;
+	int tiempo=0, terminados=0;
+
+    	printf("Ingresa el quantum (1-10): ");
+    	int quantum=getData(1,10);
+
+    	for(int i=0;i<n;i++){
+        	restante[i]=data[i*COL+1];
+        	agregado[i]=0;
+    	}
+
+    	while(terminados<n){
+        //Agregar procesos que ya llegaron
+	printf("\nTiempo=%d\n", tiempo);
+
+	printf("Cola3: ");
+	for(int i=f3;i<r3;i++)
+		    printf("%c ", 'A'+cola3[i]);
+
+	printf("\nCola2: ");
+	for(int i=f2;i<r2;i++)
+		    printf("%c ", 'A'+cola2[i]);
+
+	printf("\n");
+        for(int i=0;i<n;i++){
+            	if(!agregado[i] && data[i*COL+2]<=tiempo){
+                	agregado[i]=1;
+                	switch(data[i*COL]){
+                    	case 3:
+                        	cola3[r3++]=i;
+                        	break;
+                    	case 2:
+                        	cola2[r2++]=i;
+                        	break;
+                    	case 1:
+                        	cola1[r1++]=i;
+                        	break;
+                	}
+            	}
+        }
+        int p=-1;
+        //Elegir la cola de mayor prioridad
+        if(f3<r3){
+        	p=cola3[f3++];
+        }
+        else if(f2<r2){
+            	p=cola2[f2++];
+        }
+        else if(f1<r1){
+            	p=cola1[f1++];
+        }
+        if(p==-1){
+		tiempo++;
 	}
-
-	while(terminados < n){
-		for(int prior = 3;prior>0;prior--){//Recorre prioridad
-			for(int i = 0;i<n;i++){
-				if(!completado[i]&&(data[i*COL+2]<=tiempo)&&(data[i*COL]==prior)){
-					if(restante[i]>quantum){
-						restante[i] -= quantum;
-						tiempo += quantum;
-					}
-					else{
-						tiempo += restante[i];
-						restante[i] = 0;
-
-						data[i*COL+3] = tiempo; //Finalizacion
-						data[i*COL+4] = tiempo - data[i*COL+2]; //Retorno
-						data[i*COL+5] = data[i*COL+4] - data[i*COL+1]; //Espera
-						completado[i] = 1;
-						terminados++;
-					}
-				}
-			}
+	else{
+		if(restante[p] > quantum){
+        		restante[p]-=quantum;
+        		tiempo+=quantum;
 		}
+		else{
+        		tiempo+=restante[p];
+        		restante[p]=0;
+		}
+        	for(int i=0;i<n;i++){
+            		if(!agregado[i] && data[i*COL+2]<tiempo){
+                		agregado[i]=1;
+                		switch(data[i*COL]){
+                    		case 3:
+                        		cola3[r3++]=i;
+                        		break;
+                    		case 2:
+                        		cola2[r2++]=i;
+                        		break;
+                    		case 1:
+                        		cola1[r1++]=i;
+                        		break;
+                		}
+            		}
+        	}
+        	if(restante[p]==0){
+            		terminados++;
+
+            		data[p*COL+3]=tiempo;
+            		data[p*COL+4]=tiempo-data[p*COL+2];
+            		data[p*COL+5]=data[p*COL+4]-data[p*COL+1];
+        	}
+        	else{
+            		switch(data[p*COL]){
+                	case 3:
+                    		cola3[r3++]=p;
+                    		break;
+                	case 2:
+                    		cola2[r2++]=p;
+                    		break;
+                	case 1:
+                   		cola1[r1++]=p;
+                    		break;
+	    		}
+		}
+        	//Agregar procesos que llegaron durante este quantum
+        	for(int i=0;i<n;i++){
+            		if(!agregado[i] && data[i*COL+2]==tiempo){
+                		agregado[i]=1;
+                		switch(data[i*COL]){
+                    		case 3:
+                        		cola3[r3++]=i;
+                        		break;
+                    		case 2:
+                        		cola2[r2++]=i;
+                        		break;
+                    		case 1:
+                        		cola1[r1++]=i;
+                        		break;
+                		}
+            		}
+        	}
 	}
+    	}
 }
-void RR(int *data, int n, int quantum){
+
+
+void RR(int *data, int n){
 	//Algoritmo de Round Robin
 
 	int aux[n * COL];
@@ -233,6 +317,9 @@ void RR(int *data, int n, int quantum){
 	int indices[n];
 	int sumtot = 0;
 	int sumT = 0, orden;
+
+	printf("Ingresa el valor del quantum (1 a 10): ");
+	int quantum = getData(1,10);
 	
 	for (int i = 0; i < n; i++) {
 		indices[i] = i;
